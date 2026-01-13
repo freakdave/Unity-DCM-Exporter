@@ -1,9 +1,9 @@
 /* 
  * The MIT License (MIT)
- * Copyright © 2026 David Reichelt, Luke Benstead, Ross Kilgariff
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the ìSoftwareî), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * Copyright ¬© 2026 David Reichelt, Luke Benstead, Ross Kilgariff
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the ‚ÄúSoftware‚Äù), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED ìAS ISî, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED ‚ÄúAS IS‚Äù, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  *
  * Based on the DCM specification from https://gitlab.com/simulant/community/dcm
@@ -131,7 +131,7 @@ namespace DCM
         CHANNEL_TYPE_SCALE_Z = 10,
 
         CHANNEL_TYPE_USER_START, /* Types from here to CHANNEL_TYPE_LAST are user-defined */
-CHANNEL_TYPE_LAST = 255
+        CHANNEL_TYPE_LAST = 255
     };
 
 
@@ -148,7 +148,7 @@ CHANNEL_TYPE_LAST = 255
     [System.Serializable]
     public class FileHeader
     {
-        public byte[] id = new byte[3];  // 'D', 'C', 'M'
+        public byte[] id = new byte[3];  /* 'D', 'C', 'M' */
         public byte version;
         public byte material_count;
         public byte mesh_count;
@@ -251,9 +251,9 @@ CHANNEL_TYPE_LAST = 255
 
         public enum ExportScope
         {
-            ActiveGameObjectOnly,      // Export only the active selected GameObject
-            // SelectedGameObjectsOnly,   // Export only the selected GameObjects without their children
-            // SelectedGameObjectsWithChildren // Export selected GameObjects and their children
+            ActiveGameObjectOnly,      /* Export only the active selected GameObject */
+            // SelectedGameObjectsOnly,   /* Export only the selected GameObjects without their children */
+            // SelectedGameObjectsWithChildren /* Export selected GameObjects and their children */
         }
 
         [SerializeField]
@@ -309,7 +309,7 @@ CHANNEL_TYPE_LAST = 255
                 EditorPrefs.SetString("DCM_prevFolderPath", fileInfo.Directory.FullName);
                 EditorPrefs.SetString("DCM_prevFileName", fileInfo.Name);
 
-                // Get appropriate GameObjects based on export scope
+                /* Get appropriate GameObjects based on export scope */
                 List<GameObject> gameObjectsToExport = GetGameObjectsForExport();
 
                 if (gameObjectsToExport.Count == 0)
@@ -351,7 +351,7 @@ CHANNEL_TYPE_LAST = 255
                         {
                             result.Add(go);
 
-                            // Add all children with MeshFilter component
+                            /* Add all children with MeshFilter component */
                             MeshFilter[] childFilters = go.GetComponentsInChildren<MeshFilter>(true);
                             foreach (MeshFilter filter in childFilters)
                             {
@@ -361,7 +361,7 @@ CHANNEL_TYPE_LAST = 255
                                 }
                             }
 
-                            // Also add SkinnedMeshRenderers
+                            /* Also add SkinnedMeshRenderers */
                             SkinnedMeshRenderer[] skinRenderers = go.GetComponentsInChildren<SkinnedMeshRenderer>(true);
                             foreach (SkinnedMeshRenderer renderer in skinRenderers)
                             {
@@ -376,7 +376,7 @@ CHANNEL_TYPE_LAST = 255
 #endif
             }
 
-            // Filter out GameObjects without mesh components
+            /* Filter out GameObjects without mesh components */
             return result.Where(go => go.GetComponent<MeshFilter>()?.sharedMesh != null ||
                                       go.GetComponent<SkinnedMeshRenderer>()?.sharedMesh != null).ToList();
         }
@@ -386,7 +386,7 @@ CHANNEL_TYPE_LAST = 255
         {
             helpString = "DCM (Dreamcast Mesh) exporter version: " + _version;
 
-            // Add some more helpful information based on export scope
+            /* Add some more helpful information based on export scope */
             switch (_exportScope)
             {
                 case ExportScope.ActiveGameObjectOnly:
@@ -410,7 +410,7 @@ CHANNEL_TYPE_LAST = 255
         /// </summary>
         private List<Material> GetUniqueMaterials(List<GameObject> gameObjects)
         {
-            // Use a HashSet to avoid duplicates.
+            /* Use a HashSet to avoid duplicates */
             HashSet<Material> uniqueMaterials = new HashSet<Material>();
 
             foreach (GameObject go in gameObjects)
@@ -456,21 +456,21 @@ CHANNEL_TYPE_LAST = 255
         /// </summary>
         private void WriteMaterialData(BinaryWriter writer, Material unityMaterial)
         {
-            // Check if a valid material is provided; if not, warn and skip.
+            /* Check if a valid material is provided; if not, warn and skip */
             if (unityMaterial == null)
             {
                 Debug.LogWarning("No material provided for export; skipping material data.");
                 return;
             }
 
-            // Write Data Header for material:
-            // Flags: (for example, DATA_FLAG_EXTERNAL_LINK; using 1 as in the Python version)
+            /* Write Data Header for material:
+             * Flags: (for example, DATA_FLAG_EXTERNAL_LINK; using 1 as in the Python version) */
             writer.Write((byte)1);
 
-            // Local ID for this material (using 1, but you could track unique IDs if needed)
+            /* Local ID for this material (using 1, but you could track unique IDs if needed) */
             writer.Write((byte)1);
 
-            // Retrieve texture name from the material's main texture (or use default "material")
+            /* Retrieve texture name from the material's main texture (or use default "material") */
             string textureName = (unityMaterial.mainTexture != null) ? unityMaterial.mainTexture.name : "material";
 
             if (_treatTexturesAsDTEX)
@@ -482,11 +482,11 @@ CHANNEL_TYPE_LAST = 255
                 textureName += ".png";
             }
 
-            // IMPORTANT: The C++ structure expects a 128-byte fixed-length string for 'path' (was 32) for some reason)
-            // That would correspond to the "path" field in the DataHeader struct.
+            /* IMPORTANT: The C++ structure expects a 128-byte fixed-length string for 'path' (was 32) for some reason)
+             * That would correspond to the "path" field in the DataHeader struct */
             WriteFixedString(writer, textureName, 128);
 
-            // Write ambient color ([1, 1, 1, 1] as default)
+            /* Write ambient color ([1, 1, 1, 1] as default) */
             Color ambientColor = Color.white;
             if (unityMaterial.HasProperty("_Ambient"))
             {
@@ -497,7 +497,7 @@ CHANNEL_TYPE_LAST = 255
             writer.Write(ambientColor.b);
             writer.Write(ambientColor.a);
 
-            // Write diffuse color ([1, 1, 1, 1])
+            /* Write diffuse color ([1, 1, 1, 1]) */
             Color diffuseColor = Color.white;
             if (unityMaterial.HasProperty("_Color"))
             {
@@ -508,7 +508,7 @@ CHANNEL_TYPE_LAST = 255
             writer.Write(diffuseColor.b);
             writer.Write(diffuseColor.a);
 
-            // Write specular color ([0, 0, 0, 1])
+            /* Write specular color ([0, 0, 0, 1]) */
             Color specularColor = Color.black;
             if (unityMaterial.HasProperty("_SpecColor"))
             {
@@ -519,7 +519,7 @@ CHANNEL_TYPE_LAST = 255
             writer.Write(specularColor.b);
             writer.Write(specularColor.a);
 
-            // Write emission color ([0, 0, 0, 1])
+            /* Write emission color ([0, 0, 0, 1]) */
             Color emissiveColor = Color.black;
             if (unityMaterial.HasProperty("_ColorEmissive"))
             {
@@ -530,7 +530,7 @@ CHANNEL_TYPE_LAST = 255
             writer.Write(emissiveColor.b);
             writer.Write(emissiveColor.a);
 
-            // Write shininess value (default 0)
+            /* Write shininess value (default 0) */
             float shininess = 0;
             if (unityMaterial.HasProperty("_Shininess"))
             {
@@ -538,12 +538,12 @@ CHANNEL_TYPE_LAST = 255
             }
             writer.Write(shininess);
 
-            // Write texture map names:
-            // Diffuse map uses the texture name; the others are empty.
-            WriteFixedString(writer, textureName, 32); // Diffuse map
-            WriteFixedString(writer, "", 32);          // Light map
-            WriteFixedString(writer, "", 32);          // Normal map
-            WriteFixedString(writer, "", 32);          // Specular map
+            /* Write texture map names:
+             * Diffuse map uses the texture name; the others are empty. */
+            WriteFixedString(writer, textureName, 32); /* Diffuse map */
+            WriteFixedString(writer, "", 32);          /* Light map */
+            WriteFixedString(writer, "", 32);          /* Normal map */
+            WriteFixedString(writer, "", 32);          /* Specular map */
         }
 
 
@@ -552,15 +552,15 @@ CHANNEL_TYPE_LAST = 255
         /// This method writes:
         ///   - A data header for the mesh (flags, local ID, and a fixed-length mesh name).
         ///   - The mesh header itself, including:
-        ///       ï The submesh count (as one byte).
-        ///       ï The vertex count (as an unsigned 32-bit integer).
+        ///       ‚Ä¢ The submesh count (as one byte).
+        ///       ‚Ä¢ The vertex count (as an unsigned 32-bit integer).
         /// 
         /// Adjust the implementation if additional fields (like offsets) are needed.
         /// </summary>
         /// <param name="writer">BinaryWriter for the output file.</param>
         /// <param name="unityMesh">The Unity mesh whose data is being exported.</param>
         /// <param name="meshName">
-        /// The name to assign to this mesh (typically using the Unity meshís name or its parent GameObject's name).
+        /// The name to assign to this mesh (typically using the Unity mesh‚Äôs name or its parent GameObject's name).
         /// </param>
         /// <param name="submeshCount">The number of submeshes present in the mesh.</param>
         /// <param name="vertexCount">
@@ -568,63 +568,66 @@ CHANNEL_TYPE_LAST = 255
         /// </param>
         private void WriteMeshHeader(BinaryWriter writer, Mesh unityMesh, string meshName, int submeshCount, uint vertexCount)
         {
-            // Write Data Header for the mesh.
-            // Flags: 0 (no special flags in this example).
+            /* Write Data Header for the mesh. */
+            /* Flags: 0 (no special flags in this example). */
             writer.Write((byte)0);
-            // Local ID for this mesh (using 1 for now; increase if multiple meshes are exported).
+
+            /* Local ID for this mesh (using 1 for now; increase if multiple meshes are exported). */
             writer.Write((byte)1);
-            // Write mesh name as a fixed-length string (32 bytes).
+
+            /* Write mesh name as a fixed-length string (32 bytes). */
             WriteFixedString(writer, meshName, 128);
 
-            // Now write the mesh header data:
-            // Submesh count (1 byte)
+            /* Now write the mesh header data: */
+            /* Submesh count (1 byte) */
             writer.Write((byte)submeshCount);
-            // Vertex count (4 bytes, unsigned).
+
+            /* Vertex count (4 bytes, unsigned). */
             writer.Write(vertexCount);
 
-            // Optional: Add reserved fields or offsets for submesh data if the format requires it.
-            // For example, you might later write:
-            // writer.Write((uint)firstSubMeshOffset);
-            // writer.Write((uint)nextMeshOffset);
+            /* Optional: Add reserved fields or offsets for submesh data if the format requires it.
+             * For example, you might later write:
+             * writer.Write((uint)firstSubMeshOffset);
+             * writer.Write((uint)nextMeshOffset); */
         }
 
 
         /// <summary>
         /// Writes the mesh vertex data in a de-indexed manner.
         /// For each triangle index in the mesh, this method writes:
-        ///   - Position (3 floats), applying conversion: from Unityís (x, y, z)
-        ///     to DCMís expected ordering (x, z, y). This mimics the Blender-to-DCM 
+        ///   - Position (3 floats), applying conversion: from Unity‚Äôs (x, y, z)
+        ///     to DCM‚Äôs expected ordering (x, z, y). This mimics the Blender-to-DCM 
         ///     conversion from the Python exporter.
         ///   - UV (2 floats), where the v-coordinate is inverted (1.0 - v)
-        ///   - Color (4 bytes), converting each color component from 0ñ1 float to 0ñ255 byte
+        ///   - Color (4 bytes), converting each color component from 0‚Äì1 float to 0‚Äì255 byte
         ///   - Normal (3 floats), with the same coordinate reordering: (x, z, y)
         /// </summary>
         /// <param name="writer">BinaryWriter for the output file.</param>
         /// <param name="unityMesh">The Unity mesh to export.</param>
         private void WriteMeshVertices(BinaryWriter writer, Mesh unityMesh, GameObject go)
         {
-            // Retrieve arrays from the Unity mesh.
+            /* Retrieve arrays from the Unity mesh. */
             int[] triangles = unityMesh.triangles;
             Vector3[] vertices = unityMesh.vertices;
             Vector3[] normals = unityMesh.normals;
             Vector2[] uvs = unityMesh.uv;
-            Color[] colors = unityMesh.colors; // May be empty if no vertex colors are assigned.
+            Color[] colors = unityMesh.colors; /* May be empty if no vertex colors are assigned. */
 
             Vector3 lossyScale = go.transform.lossyScale;
-            Quaternion rotation = go.transform.rotation;// * Quaternion.Euler(0, 180, 0);
+            Quaternion rotation = go.transform.rotation; /* Quaternion.Euler(0, 180, 0); */
 
             Vector3 position = go.transform.position;
 
-            // Iterate over each triangle
+            /* Iterate over each triangle */
             for (int i = 0; i < triangles.Length; i += 3)
             {
-                // Reverse the triangle winding when writing indices
-                // Instead of 0,1,2 use 0,2,1 for each triangle
+                /* Reverse the triangle winding when writing indices */
+                /* Instead of 0,1,2 use 0,2,1 for each triangle */
                 int idx1 = triangles[i];
-                int idx2 = triangles[i + 2]; // Swapped from i+1
-                int idx3 = triangles[i + 1]; // Swapped from i+2
+                int idx2 = triangles[i + 2]; /* Swapped from i+1 */
+                int idx3 = triangles[i + 1]; /* Swapped from i+2 */
 
-                // Then process each vertex with mirrored X
+                /* Then process each vertex with mirrored X */
                 ProcessVertex(writer, vertices, normals, uvs, colors, lossyScale, rotation, position, idx1, true);
                 ProcessVertex(writer, vertices, normals, uvs, colors, lossyScale, rotation, position, idx2, true);
                 ProcessVertex(writer, vertices, normals, uvs, colors, lossyScale, rotation, position, idx3, true);
@@ -632,7 +635,7 @@ CHANNEL_TYPE_LAST = 255
         }
 
 
-        // Helper method to process a vertex with optional mirroring
+        /* Helper method to process a vertex with optional mirroring */
         private void ProcessVertex(BinaryWriter writer, Vector3[] vertices, Vector3[] normals, Vector2[] uvs,
                                   Color[] colors, Vector3 lossyScale, Quaternion rotation, Vector3 position,
                                   int idx, bool mirrorX)
@@ -645,24 +648,24 @@ CHANNEL_TYPE_LAST = 255
             if (mirrorX)
                 pos.x = -pos.x;
 
-            // Write position
+            /* Write position */
             writer.Write(pos.x);
             writer.Write(pos.y);
             writer.Write(pos.z);
 
-            // UV coords
+            /* UV coords */
             Vector2 uv = (uvs != null && uvs.Length > idx) ? uvs[idx] : Vector2.zero;
             writer.Write(uv.x);
             writer.Write(uv.y);
 
-            // Color
+            /* Color */
             Color col = (colors != null && colors.Length > idx) ? colors[idx] : Color.white;
             writer.Write((byte)Mathf.Clamp(Mathf.RoundToInt(col.r * 255), 0, 255));
             writer.Write((byte)Mathf.Clamp(Mathf.RoundToInt(col.g * 255), 0, 255));
             writer.Write((byte)Mathf.Clamp(Mathf.RoundToInt(col.b * 255), 0, 255));
             writer.Write((byte)Mathf.Clamp(Mathf.RoundToInt(col.a * 255), 0, 255));
 
-            // Normal with mirroring if needed
+            /* Normal with mirroring if needed */
             Vector3 norm = (normals != null && normals.Length > idx) ? normals[idx] : Vector3.up;
             norm = MultiplyVec3s(norm, lossyScale);
             norm = RotateAroundPoint(norm, Vector3.zero, rotation);
@@ -697,22 +700,22 @@ CHANNEL_TYPE_LAST = 255
         /// </param>
         private void WriteSubmeshData(BinaryWriter writer, Mesh unityMesh, uint vertexCount)
         {
-            // 1. Write Data Header for the submesh.
-            writer.Write((byte)0);  // Flags: 0 (no special flags).
-            writer.Write((byte)1);  // Local ID for this submesh (set to 1 in this example).
-            WriteFixedString(writer, unityMesh.name, 128);  // Fixed-length submesh name.
+            /* 1. Write Data Header for the submesh. */
+            writer.Write((byte)0);  /* Flags: 0 (no special flags). */
+            writer.Write((byte)1);  /* Local ID for this submesh (set to 1 in this example). */
+            WriteFixedString(writer, unityMesh.name, 128);  /* Fixed-length submesh name. */
 
-            // 2. Write the Submesh Header.
-            // Material ID: assuming 1 (or map to the appropriate material index if exporting multiple).
+            /* 2. Write the Submesh Header. */
+            /* Material ID: assuming 1 (or map to the appropriate material index if exporting multiple). */
             byte materialId = 1;
-            // Arrangement: 2 representing a triangle arrangement (as per Python exporter conventions).
+            /* Arrangement: 2 representing a triangle arrangement (as per Python exporter conventions). */
             byte arrangement = 2;
 
-            // Submesh Type: 2 representing INDEXED data (the Python example uses 2 for SUB_MESH_TYPE_INDEXED).
+            /* Submesh Type: 2 representing INDEXED data (the Python example uses 2 for SUB_MESH_TYPE_INDEXED). */
             byte submeshType = 2;
 
-            // Number of indices - note: we cast vertexCount to ushort.
-            // Ensure that vertexCount does not exceed ushort.MaxValue for your models.
+            /* Number of indices - note: we cast vertexCount to ushort. */
+            /* Ensure that vertexCount does not exceed ushort.MaxValue for your models. */
             ushort numIndices = (ushort)vertexCount;
 
             writer.Write(materialId);
@@ -720,9 +723,9 @@ CHANNEL_TYPE_LAST = 255
             writer.Write(submeshType);
             writer.Write(numIndices);
 
-            // 3. Write the indices.
-            // Since we de-indexed the vertices, the indices are sequential.
-            // Each index is written as a 32-bit unsigned integer.
+            /* 3. Write the indices. */
+            /* Since we de-indexed the vertices, the indices are sequential. */
+            /* Each index is written as a 32-bit unsigned integer. */
 
             for (uint i = 0; i < vertexCount; i++)
             {
@@ -753,29 +756,29 @@ CHANNEL_TYPE_LAST = 255
                     return false;
                 }
 
-                // Setup file header.
+                /* Setup file header. */
                 FileHeader fheader = new FileHeader();
                 fheader.id[0] = (byte)'D';
                 fheader.id[1] = (byte)'C';
                 fheader.id[2] = (byte)'M';
                 fheader.version = DCM_CURRENT_VERSION;
 
-                // Populate header values that weren't written before.
+                /* Populate header values that weren't written before. */
                 List<Material> materialList = GetUniqueMaterials(gameObjectsToExport);
                 fheader.material_count = (byte)materialList.Count;
-                fheader.mesh_count = (byte)gameObjectsToExport.Count;  // Updated to match exported objects count
-                fheader.armature_count = 0;         // No armatures.
-                fheader.animation_count = 0;        // No animations.
+                fheader.mesh_count = (byte)gameObjectsToExport.Count;  /* Updated to match exported objects count */
+                fheader.armature_count = 0;         /* No armatures. */
+                fheader.animation_count = 0;        /* No animations. */
                 fheader.pos_format = (byte)PositionFormat.POSITION_FORMAT_3F;
                 fheader.tex0_format = (byte)TexCoordFormat.TEX_COORD_FORMAT_2F;
                 fheader.tex1_format = (byte)TexCoordFormat.TEX_COORD_FORMAT_NONE;
                 fheader.color_format = (byte)ColorFormat.COLOR_FORMAT_4UB;
                 fheader.offset_colour_format = (byte)ColorFormat.COLOR_FORMAT_NONE;
                 fheader.normal_format = (byte)NormalFormat.NORMAL_FORMAT_3F;
-                fheader.index_size = 4;             // 32-bit indices.
-                fheader.bone_weights_format = 0;    // Assuming no bone weights.
+                fheader.index_size = 4;             /* 32-bit indices. */
+                fheader.bone_weights_format = 0;    /* Assuming no bone weights. */
 
-                // Write out the full file header in the correct order.
+                /* Write out the full file header in the correct order. */
                 writer.Write(fheader.id[0]);
                 writer.Write(fheader.id[1]);
                 writer.Write(fheader.id[2]);
@@ -793,13 +796,13 @@ CHANNEL_TYPE_LAST = 255
                 writer.Write(fheader.index_size);
                 writer.Write(fheader.bone_weights_format);
 
-                // Now write out each material.
+                /* Now write out each material. */
                 foreach (Material mat in materialList)
                 {
                     WriteMaterialData(writer, mat);
                 }
 
-                // Export each GameObject's mesh
+                /* Export each GameObject's mesh */
                 foreach (GameObject go in gameObjectsToExport)
                 {
                     Mesh unityMesh = null;
@@ -820,19 +823,19 @@ CHANNEL_TYPE_LAST = 255
 
                     if (unityMesh != null)
                     {
-                        // For this example, we're assuming one submesh.
+                        /* For this example, we're assuming one submesh. */
                         int submeshCount = unityMesh.subMeshCount;
 
-                        // The de-indexed vertex count is the total number of triangle indices.
+                        /* The de-indexed vertex count is the total number of triangle indices. */
                         uint vertexCount = (uint)unityMesh.triangles.Length;
 
-                        // Write the mesh header
+                        /* Write the mesh header */
                         WriteMeshHeader(writer, unityMesh, go.name, submeshCount, vertexCount);
 
-                        // Write all vertices.
+                        /* Write all vertices. */
                         WriteMeshVertices(writer, unityMesh, go);
 
-                        // Write submesh data for each submesh
+                        /* Write submesh data for each submesh */
                         for (int i = 0; i < submeshCount; i++)
                         {
                             WriteSubmeshData(writer, unityMesh, vertexCount);
@@ -841,7 +844,7 @@ CHANNEL_TYPE_LAST = 255
                 }
             }
 
-            // Show success dialog with number of exported objects
+            /* Show success dialog with number of exported objects */
             string message = $"Successfully exported {gameObjectsToExport.Count} meshes to {Path.GetFileName(filePath)}";
             DisplayDialogOK(DialogSeverity.Information, message);
             return true;
